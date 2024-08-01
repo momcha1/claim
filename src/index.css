@@ -1,0 +1,21 @@
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap");
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  background: linear-gradient(
+      180deg,
+      rgba(65, 88, 210, 0.2) 12.5%,
+      rgba(0, 0, 0, 0) 88.02%
+    ),
+    #0c0920;
+}
+/* styles.css */
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-family: "Montserrat", sans-serif;
+}
