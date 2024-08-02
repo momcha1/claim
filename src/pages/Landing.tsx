@@ -35,11 +35,11 @@ export const Landing = () => {
   }, [toClaim, availableToken]);
 
   return (
-    <>
-      <h1 className="text-white text-2xl mx-32 font-bold">My Dashboard</h1>
+    <div className="mx-64">
+      <h1 className="text-white text-2xl  font-bold">My Dashboard</h1>
       <div className="flex justify-end ">
         <button
-          className="text-white text-xl rounded absolute right-32 top-32 p-2"
+          className="text-white text-xl rounded absolute right-64 top-32 "
           onClick={() => {
             setModalDetails({
               show: true,
@@ -49,7 +49,7 @@ export const Landing = () => {
           View Leaderboard
         </button>
       </div>
-      <div className="bg-custom-gradient rounded-lg mx-32 h-screen flex flex-row gap-10 justify-center mt-5 p-10 ">
+      <div className="bg-custom-gradient rounded-lg  h-screen flex flex-row gap-10 justify-center mt-10 pt-5 ">
         {/* amount of tokens available */}
 
         <div className="pt-16 px-10 bg-[#1EB6BF]  bg-opacity-[10%] rounded-lg w-[20%] h-64 ml-5 mt-5">
@@ -60,7 +60,7 @@ export const Landing = () => {
           </div>
         </div>
         {/* Claim div */}
-        <div className="flex flex-row gap-5 px-16  pt-10 mt-5  bg-[#1EB6BF]  bg-opacity-[10%] rounded-lg w-[60%] h-[300px]">
+        <div className="flex flex-row gap-5 px-16  pt-10 mt-5  bg-[#1EB6BF]  bg-opacity-[10%] rounded-lg w-[60%] h-64">
           <div className="flex flex-col ">
             <p className="italic text-2xl text-white pb-5">
               Claim your tokens.
@@ -96,7 +96,7 @@ export const Landing = () => {
         show={modalDetails.show}
         closeHandler={handleModalClose}
       />
-    </>
+    </div>
   );
 };
 

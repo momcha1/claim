@@ -74,7 +74,7 @@ const Leaderboard = () => {
       {/* <div className="">
         <p className="pb-4">Showing {noOfEntries} entries in a page</p>
       </div> */}
-      <div style={{ height: "500px", overflowY: "scroll" }}>
+      <div className="h-[500px] overflow-y-auto">
         <table className="w-[600px] ">
           <thead>
             <tr className="bg-blue-500 text-white text-left h-[50px]">

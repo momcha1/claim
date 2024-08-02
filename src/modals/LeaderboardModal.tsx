@@ -14,8 +14,10 @@ const LeaderBoardModal: React.FC<LeaderBoardModalProps> = ({
   show,
   closeHandler,
 }) => {
-  const noOfEntries: number = 20;
+  const limitPerPage: number = 10;
+  const [offset, setOffset] = useState(0);
   const [leader, setLeader] = useState<LeaderData[]>([]);
+  const currentPage = parseInt(`${offset / limitPerPage}`) + 1;
   const newLeader: LeaderData[] = [
     { address: "0x1111111111111111111111111111111111111111", amount: 100 },
     { address: "0x0000000000000000000000000000000000000002", amount: 200 },
@@ -69,16 +71,17 @@ const LeaderBoardModal: React.FC<LeaderBoardModalProps> = ({
     { address: "0x0000000000000000000000000000000000000050", amount: 5000 },
   ];
 
-  const changePage = (num: number) => {
-    const end = Math.min(50, num + noOfEntries);
-    console.log(num, end, "num and end");
-    setLeader(newLeader.slice(num, num + noOfEntries));
-    console.log("leader length after changing page", leader.length);
+  const handlePagination = (limit: number) => {
+    console.log(offset, limit, currentPage);
+    const temp = offset + limit;
+    if (temp >= 0) {
+      setOffset(offset + limit);
+    }
   };
 
   useEffect(() => {
-    const temp = newLeader.slice(0, 20);
-    setLeader(temp);
+    console.log(offset, "changed offset", limitPerPage);
+    setLeader(newLeader.slice(offset, offset + limitPerPage));
   }, []);
 
   if (!show) return null;
@@ -89,10 +92,10 @@ const LeaderBoardModal: React.FC<LeaderBoardModalProps> = ({
         <h1 className="text-4xl text-[#1EB6BF] font-bold text-center py-5">
           LEADERBOARD
         </h1>
-        <div className="h-[500px] overflow-y-auto scrollbar-hide">
+        <div className="h-[485px] overflow-y-auto scrollbar-hide">
           <table className="w-[90%] mx-auto">
             <thead className="">
-              <tr className=" h-12 bg-[#374485] shadow-sm shadow-blue-300 mb-2 rounded-sm flex gap-5 pt-3">
+              <tr className="  h-12   bg-[#374485] shadow-sm shadow-blue-300 mb-2 rounded-sm flex gap-5 pt-3">
                 <th className="pl-8 text-left">S.N</th>
                 <th className="text-left pl-5 w-[500px]">Address</th>
                 <th className="pl-3 text-left "> Amount</th>
@@ -101,11 +104,14 @@ const LeaderBoardModal: React.FC<LeaderBoardModalProps> = ({
             <tbody>
               {leader.length > 0 ? (
                 leader.map((item, key) => (
+                  // 21214F
                   <tr
-                    className="bg-[#374485] shadow-sm shadow-blue-300 mb-2 rounded-sm flex gap-5 "
+                    className={`bg-[#374485]  shadow-sm  mb-2 rounded-sm flex gap-5 ${
+                      key % 2 === 0 ? "bg-[#2a2a72]" : "bg-[#21214F]"
+                    }`}
                     key={key}
                   >
-                    <td className="pl-8 pt-3 ">{key + 1} </td>
+                    <td className="pl-8 pt-3 ">{offset + key + 1} </td>
                     <td className=" h-10 pt-3 w-[500px] pl-8  ">
                       {item.address}
                     </td>
@@ -122,17 +128,20 @@ const LeaderBoardModal: React.FC<LeaderBoardModalProps> = ({
             </tbody>
           </table>
         </div>
-        <div className="  flex gap-4 text-gray-400 justify-center pt-2">
-          <button onClick={() => changePage(0)} className="btn">
-            1
+        <div className="flex flex-row  gap-5 items-center justify-center pt-4">
+          <button
+            className="bg-white p-1 rounded text-black"
+            onClick={() => handlePagination(-limitPerPage)}
+          >
+            Prev
           </button>
-          <button onClick={() => changePage(noOfEntries)} className="btn">
-            2
+          <p>{currentPage}</p>
+          <button
+            className="bg-white p-1 rounded text-black"
+            onClick={() => handlePagination(limitPerPage)}
+          >
+            Next
           </button>
-          <button onClick={() => changePage(noOfEntries * 2)} className="btn">
-            3
-          </button>
-          {/* <button className="btn">Next</button> */}
         </div>
         <div className="text-center pb-6">
           <button
