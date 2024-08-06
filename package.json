@@ -10,6 +10,11 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@ledgerhq/hw-app-icx": "file:src/packages/hw-app-icx",
+    "@ledgerhq/hw-transport": "5.48.0",
+    "@ledgerhq/hw-transport-webhid": "5.51.1",
+    "@ledgerhq/wallet-api-client": "^1.5.9",
+    "@polkadot/extension-dapp": "^0.50.1",
     "autoprefixer": "^10.4.19",
     "dotenv": "^16.4.5",
     "ethers": "^6.13.2",
@@ -23,6 +28,7 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.25.1",
+    "react-toastify": "^10.0.5",
     "tailwindcss": "^3.4.7"
   },
   "devDependencies": {

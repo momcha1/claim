@@ -1,3 +1,4 @@
+import { off } from "process";
 import { useState, useEffect } from "react";
 
 interface LeaderBoardModalProps {
@@ -75,27 +76,27 @@ const LeaderBoardModal: React.FC<LeaderBoardModalProps> = ({
     console.log(offset, limit, currentPage);
     const temp = offset + limit;
     if (temp >= 0) {
-      setOffset(offset + limit);
+      setOffset(temp);
     }
   };
 
   useEffect(() => {
     console.log(offset, "changed offset", limitPerPage);
     setLeader(newLeader.slice(offset, offset + limitPerPage));
-  }, []);
+  }, [offset]);
 
   if (!show) return null;
 
   return (
     <div className="fixed inset-0 flex  items-center justify-center bg-black bg-opacity-70 ">
       <div className="relative w-[900px] h-[630px] bg-[#21214F]  text-white ">
-        <h1 className="text-4xl text-[#1EB6BF] font-bold text-center py-5">
+        <h1 className="text-4xl text-[#1EB6BF] font-bold text-center py-5 ">
           LEADERBOARD
         </h1>
         <div className="h-[485px] overflow-y-auto scrollbar-hide">
           <table className="w-[90%] mx-auto">
             <thead className="">
-              <tr className="  h-12   bg-[#374485] shadow-sm shadow-blue-300 mb-2 rounded-sm flex gap-5 pt-3">
+              <tr className="  h-12   bg-[#1EB6BF] shadow-sm shadow-blue-300 mb-2 rounded-sm flex gap-5 pt-3">
                 <th className="pl-8 text-left">S.N</th>
                 <th className="text-left pl-5 w-[500px]">Address</th>
                 <th className="pl-3 text-left "> Amount</th>
@@ -107,7 +108,7 @@ const LeaderBoardModal: React.FC<LeaderBoardModalProps> = ({
                   // 21214F
                   <tr
                     className={`bg-[#374485]  shadow-sm  mb-2 rounded-sm flex gap-5 ${
-                      key % 2 === 0 ? "bg-[#2a2a72]" : "bg-[#21214F]"
+                      key % 2 === 0 ? "bg-[#2a2a72]" : "bg-[#2f2f5b]"
                     }`}
                     key={key}
                   >
@@ -130,14 +131,14 @@ const LeaderBoardModal: React.FC<LeaderBoardModalProps> = ({
         </div>
         <div className="flex flex-row  gap-5 items-center justify-center pt-4">
           <button
-            className="bg-white p-1 rounded text-black"
+            className="bg-gray-400 p-1 rounded text-white text-sm"
             onClick={() => handlePagination(-limitPerPage)}
           >
             Prev
           </button>
           <p>{currentPage}</p>
           <button
-            className="bg-white p-1 rounded text-black"
+            className="bg-gray-400 p-1 text-sm rounded text-white "
             onClick={() => handlePagination(limitPerPage)}
           >
             Next
