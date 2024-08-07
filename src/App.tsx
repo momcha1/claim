@@ -3,14 +3,23 @@ import Navbar from "./components/Navbar/Navbar";
 import { Landing } from "./pages/Landing";
 // import { About } from "./pages/About"; // Uncomment if you have an About page
 import "./index.css";
+import { useState } from "react";
 
 function App() {
+  const [connectedAccount, setConnectedAccount] = useState("");
+
   return (
     <Router>
-      <Navbar />
+      <Navbar
+        connectedAccount={connectedAccount}
+        setConnectedAccount={setConnectedAccount}
+      />
       <Routes>
-        <Route path="/" element={<Landing />} />
-        {/* <Route path="/about" component={About} /> */}
+        <Route
+          path="/"
+          element={<Landing connectedAccount={connectedAccount} />}
+        />
+        {/* <Route path="/about" element={<About />} /> */}
       </Routes>
     </Router>
   );

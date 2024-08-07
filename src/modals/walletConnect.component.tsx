@@ -2,7 +2,6 @@ import hana from "../assets/images/hana.png";
 import { useState } from "react";
 import { useEffect } from "react";
 import { toast, ToastContainer } from "react-toastify";
-import type { InjectedAccountWithMeta } from "@polkadot/extension-inject/types";
 
 // import Transport from "@ledgerhq/hw-transport-webhid";
 // import AppIcx from "@ledgerhq/hw-app-icx";
@@ -11,9 +10,9 @@ import "react-toastify/dist/ReactToastify.css";
 interface WalletConnectModalProps {
   show: boolean;
   closeHandler: () => void;
-  connectedAccount: InjectedAccountWithMeta | undefined;
+  connectedAccount: string | undefined;
   setConnectedAccount: React.Dispatch<
-    React.SetStateAction<InjectedAccountWithMeta[] | undefined>
+    React.SetStateAction<string[] | undefined>
   >;
   setSelectedWalletType: React.Dispatch<
     React.SetStateAction<string | undefined>
@@ -57,7 +56,7 @@ export const WalletConnectModal: React.FC<WalletConnectModalProps> = ({
     }
   };
 
-  const saveWalletToLocalStorage = (account: InjectedAccountWithMeta) => {
+  const saveWalletToLocalStorage = (account: string) => {
     try {
       localStorage.setItem("connectedWallet", JSON.stringify(account));
     } catch (error) {
@@ -85,7 +84,7 @@ export const WalletConnectModal: React.FC<WalletConnectModalProps> = ({
       closeHandler();
     }
 
-    window.addEventListener("ICONEX_RELAY_RESPONSE", handleResponse);
+    window.addEventListener("ICONEX_RELAY_RESPONSE", handleResponse); // can use eventhandler
 
     return () => {
       window.removeEventListener("ICONEX_RELAY_RESPONSE", handleResponse);

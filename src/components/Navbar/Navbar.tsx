@@ -1,12 +1,18 @@
 import { Link } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import iconbetLogo from "../../assets/images/iconbetLogo.png";
 import hana from "../../assets/images/hana.png";
 import { WalletConnectModal } from "../../modals/walletConnect.component";
-import { IconService, HttpProvider } from "icon-sdk-js";
-import type { InjectedAccountWithMeta } from "@polkadot/extension-inject/types";
 
-const Navbar = () => {
+interface NavbarProps {
+  connectedAccount: string;
+  setConnectedAccount: React.Dispatch<React.SetStateAction<string>>;
+}
+
+const Navbar: React.FC<NavbarProps> = ({
+  connectedAccount,
+  setConnectedAccount,
+}) => {
   // const [isWalletConnected] = useState(false);
   const [balance, setBalance] = useState("");
   const [openWalletDrop, setOpenWalletDrop] = useState(false);
@@ -17,44 +23,16 @@ const Navbar = () => {
   // const [isConnected, setIsConnected] = useState(false);
   // const [isConnecting, setIsConnecting] = useState(false);
   // const [icx, setIcx] = useState(null);
-  const iconService = new IconService(
-    new HttpProvider("https://ctz.solidwallet.io/api/v3")
-  );
-
-  const getIcxBalance = async (address: string): Promise<string> => {
-    try {
-      // Call the ICX getBalance method
-      const balance = await iconService.getBalance(address).execute();
-
-      return balance.toString(); // Return balance as a string
-    } catch (error) {
-      console.error("Failed to fetch ICX balance:", error);
-      throw new Error("Error fetching ICX balance");
-    }
-  };
-
-  useEffect(() => {
-    if (connectedAccount) {
-      getIcxBalance(connectedAccount?.toString())
-        .then((data) => {
-          console.log(`ICX Balance: ${data}`);
-          setBalance(data);
-        })
-        .catch((error) => console.error(error));
-    }
-  });
 
   const handleModalClose = () => {
     setOpenWalletModal({
       show: false,
     });
   };
-  const [connectedAccount, setConnectedAccount] =
-    useState<InjectedAccountWithMeta[]>(null);
 
   const handleWalletDisconnect = (type: string) => {
     if (type == "ICON") {
-      setConnectedAccount(undefined);
+      setConnectedAccount("");
       try {
         localStorage.removeItem("connectedWallet");
       } catch (error) {
@@ -78,11 +56,6 @@ const Navbar = () => {
       <div>
         {connectedAccount ? (
           <div className="flex flex-row text-white gap-5 items-center pl-10">
-            <div>
-              <p className="">
-                {balance} <span className="text-gray-500">ICX</span>
-              </p>
-            </div>
             <div className="flex flex-row gap-2 items-center ">
               <img src={hana} alt="" className="w-4 h-auto" />
               <button
@@ -90,9 +63,7 @@ const Navbar = () => {
                 type="button"
                 onClick={() => setOpenWalletDrop((prevState) => !prevState)}
               >
-                <p className="w-32 text-white truncate">
-                  {connectedAccount?.toString()}
-                </p>
+                <p className=" text-white ">{connectedAccount?.toString()}</p>
               </button>
             </div>
           </div>
@@ -114,7 +85,7 @@ const Navbar = () => {
       />
 
       {openWalletDrop && (
-        <div className="absolute top-[85px] right-[130px] rounded-lg bg-[#68eddd] w-[130px] h-12 text-center pt-3 hover:text-red-500 text-gray-800  border border-white">
+        <div className="absolute top-[85px] right-[130px] rounded-lg bg-[#68eddd] w-[130px] h-12 text-center pt-3 hover:text-red-500 text-white  border border-white">
           <button
             onClick={() => {
               handleWalletDisconnect("ICON");
