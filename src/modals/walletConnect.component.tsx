@@ -1,10 +1,11 @@
 import hana from "../assets/images/hana.png";
-import {useState } from 'react'
+import { useState } from "react";
 import { useEffect } from "react";
 import { toast, ToastContainer } from "react-toastify";
 import type { InjectedAccountWithMeta } from "@polkadot/extension-inject/types";
+
+// import Transport from "@ledgerhq/hw-transport-webhid";
 // import AppIcx from "@ledgerhq/hw-app-icx";
-import Transport from "@ledgerhq/hw-transport-webhid";
 import { ICONEXResponse, eventHandler } from "../helpers/eventHandlers";
 import "react-toastify/dist/ReactToastify.css";
 interface WalletConnectModalProps {
@@ -91,31 +92,31 @@ export const WalletConnectModal: React.FC<WalletConnectModalProps> = ({
     };
   }, []);
 
-  // const loadAddresses = async (suppressError, icx) => {
-  //   let i = 0;
-  //   let counter;
-  //   const addresses = [];
-  //   const paths = [];
-  //   while (i < addressPerPage) {
-  //     suppressError = true;
-  //     counter = (currPage - 1) * addressPerPage + i;
-  //     console.log("counter = ", counter);
-  //     const path = `${BASE_PATH}/${counter}'`;
-  //     console.log("PATH= ", path);
-  //     let { address } = await icx.getAddress(path, false, true);
-  //     address = address.toString();
-  //     console.log("a wallet ", address);
-  //     addresses.push(address);
-  //     paths.push(path);
-  //     i++;
-  //   }
-  //   console.log("ADDRESSES FOR A PAGE: ", addresses);
-  //   setWalletAddresses(addresses);
-  //   setWalletPaths(paths);
-  // };
+  const loadAddresses = async (suppressError, icx) => {
+    let i = 0;
+    let counter;
+    const addresses = [];
+    const paths = [];
+    while (i < addressPerPage) {
+      suppressError = true;
+      counter = (currPage - 1) * addressPerPage + i;
+      console.log("counter = ", counter);
+      const path = `${BASE_PATH}/${counter}'`;
+      console.log("PATH= ", path);
+      let { address } = await icx.getAddress(path, false, true);
+      address = address.toString();
+      console.log("a wallet ", address);
+      addresses.push(address);
+      paths.push(path);
+      i++;
+    }
+    console.log("ADDRESSES FOR A PAGE: ", addresses);
+    setWalletAddresses(addresses);
+    setWalletPaths(paths);
+  };
 
   // const handleLedgerLogin = () => {
-  //   console.log("logging to ledger")
+  //   console.log("logging to ledger");
   //   const suppressError = false;
   //   setIsConnecting(true);
   //   Transport.create()
@@ -197,8 +198,9 @@ export const WalletConnectModal: React.FC<WalletConnectModalProps> = ({
               <p className="text-center">Hana</p>
             </div>
             <div className="flex flex-col gap-2">
-              <button className=""
-              //  onClick={handleLedgerLogin}
+              <button
+                className=""
+                //  onClick={handleLedgerLogin}
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"

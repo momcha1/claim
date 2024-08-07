@@ -1,18 +1,18 @@
-"use strict";
+'use strict';
 
-Object.defineProperty(exports, "__esModule", {
+Object.defineProperty(exports, '__esModule', {
   value: true,
 });
 
-var _classCallCheck2 = require("babel-runtime/helpers/classCallCheck");
+var _classCallCheck2 = require('babel-runtime/helpers/classCallCheck');
 
 var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
 
-var _createClass2 = require("babel-runtime/helpers/createClass");
+var _createClass2 = require('babel-runtime/helpers/createClass');
 
 var _createClass3 = _interopRequireDefault(_createClass2);
 
-var _utils = require("./utils");
+var _utils = require('./utils');
 
 function _interopRequireDefault(obj) {
   return obj && obj.__esModule ? obj : { default: obj };
@@ -32,13 +32,8 @@ var Icx = (function() {
     this.transport = transport;
     transport.decorateAppAPIMethods(
       this,
-      [
-        "getAddress",
-        "signTransaction",
-        "getAppConfiguration",
-        "setTestPrivateKey",
-      ],
-      "ICON"
+      ['getAddress', 'signTransaction', 'getAppConfiguration', 'setTestPrivateKey'],
+      'ICON'
     );
   }
 
@@ -55,16 +50,11 @@ var Icx = (function() {
 
   (0, _createClass3.default)(Icx, [
     {
-      key: "getAddress",
+      key: 'getAddress',
       value: function getAddress(path) {
-        var boolDisplay =
-          arguments.length > 1 && arguments[1] !== undefined
-            ? arguments[1]
-            : false;
+        var boolDisplay = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
         var boolChaincode =
-          arguments.length > 2 && arguments[2] !== undefined
-            ? arguments[2]
-            : true;
+          arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
 
         var paths = (0, _utils.splitPath)(path);
         var buffer = new Buffer(1 + paths.length * 4);
@@ -73,26 +63,18 @@ var Icx = (function() {
           buffer.writeUInt32BE(element, 1 + 4 * index);
         });
         return this.transport
-          .send(
-            0xe0,
-            0x02,
-            boolDisplay ? 0x01 : 0x00,
-            boolChaincode ? 0x01 : 0x00,
-            buffer
-          )
+          .send(0xe0, 0x02, boolDisplay ? 0x01 : 0x00, boolChaincode ? 0x01 : 0x00, buffer)
           .then(function(response) {
             var result = {};
             var publicKeyLength = response[0];
-            result.publicKey = response
-              .slice(1, 1 + publicKeyLength)
-              .toString("hex");
+            result.publicKey = response.slice(1, 1 + publicKeyLength).toString('hex');
             var addressLength = response[1 + publicKeyLength];
             result.address = response.slice(
               1 + publicKeyLength + 1,
               1 + publicKeyLength + 1 + addressLength
             );
             if (boolChaincode) {
-              result.chainCode = response.slice(-32).toString("hex");
+              result.chainCode = response.slice(-32).toString('hex');
             }
             return result;
           });
@@ -113,7 +95,7 @@ var Icx = (function() {
        */
     },
     {
-      key: "signTransaction",
+      key: 'signTransaction',
       value: function signTransaction(path, rawTxAscii) {
         var _this = this;
 
@@ -124,27 +106,17 @@ var Icx = (function() {
         var response = void 0;
 
         var _loop = function _loop() {
-          var maxChunkSize =
-            offset === 0 ? 150 - 1 - paths.length * 4 - 4 : 150;
+          var maxChunkSize = offset === 0 ? 150 - 1 - paths.length * 4 - 4 : 150;
           var chunkSize =
-            offset + maxChunkSize > rawTx.length
-              ? rawTx.length - offset
-              : maxChunkSize;
-          var buffer = new Buffer(
-            offset === 0 ? 1 + paths.length * 4 + 4 + chunkSize : chunkSize
-          );
+            offset + maxChunkSize > rawTx.length ? rawTx.length - offset : maxChunkSize;
+          var buffer = new Buffer(offset === 0 ? 1 + paths.length * 4 + 4 + chunkSize : chunkSize);
           if (offset === 0) {
             buffer[0] = paths.length;
             paths.forEach(function(element, index) {
               buffer.writeUInt32BE(element, 1 + 4 * index);
             });
             buffer.writeUInt32BE(rawTx.length, 1 + 4 * paths.length);
-            rawTx.copy(
-              buffer,
-              1 + 4 * paths.length + 4,
-              offset,
-              offset + chunkSize
-            );
+            rawTx.copy(buffer, 1 + 4 * paths.length + 4, offset, offset + chunkSize);
           } else {
             rawTx.copy(buffer, 0, offset, offset + chunkSize);
           }
@@ -165,11 +137,9 @@ var Icx = (function() {
           var result = {};
           // r, s, v are aligned sequencially
           result.signedRawTxBase64 = (0, _utils.hexToBase64)(
-            response.slice(0, 32 + 32 + 1).toString("hex")
+            response.slice(0, 32 + 32 + 1).toString('hex')
           );
-          result.hashHex = response
-            .slice(32 + 32 + 1, 32 + 32 + 1 + 32)
-            .toString("hex");
+          result.hashHex = response.slice(32 + 32 + 1, 32 + 32 + 1 + 32).toString('hex');
           return result;
         });
       },
@@ -180,17 +150,15 @@ var Icx = (function() {
        */
     },
     {
-      key: "getAppConfiguration",
+      key: 'getAppConfiguration',
       value: function getAppConfiguration() {
-        return this.transport
-          .send(0xe0, 0x06, 0x00, 0x00)
-          .then(function(response) {
-            var result = {};
-            result.majorVersion = response[0];
-            result.minorVersion = response[1];
-            result.patchVersion = response[2];
-            return result;
-          });
+        return this.transport.send(0xe0, 0x06, 0x00, 0x00).then(function(response) {
+          var result = {};
+          result.majorVersion = response[0];
+          result.minorVersion = response[1];
+          result.patchVersion = response[2];
+          return result;
+        });
       },
 
       /**
@@ -206,7 +174,7 @@ var Icx = (function() {
        */
     },
     {
-      key: "setTestPrivateKey",
+      key: 'setTestPrivateKey',
       value: function setTestPrivateKey(privateKeyHex) {
         var data = new Buffer(32);
         for (var i = 0; i < privateKeyHex.length; i += 2) {
