@@ -1,43 +1,29 @@
 import hana from "../assets/images/hana.png";
-import { useState } from "react";
 import { useEffect } from "react";
 import { toast, ToastContainer } from "react-toastify";
-
-// import Transport from "@ledgerhq/hw-transport-webhid";
-// import AppIcx from "@ledgerhq/hw-app-icx";
-import { ICONEXResponse, eventHandler } from "../helpers/eventHandlers";
+import { saveWalletToLocalStorage } from "../helpers";
+import { ICONEXResponse } from "../helpers/eventHandlers";
 import "react-toastify/dist/ReactToastify.css";
+
 interface WalletConnectModalProps {
   show: boolean;
   closeHandler: () => void;
-  connectedAccount: string | undefined;
-  setConnectedAccount: React.Dispatch<
-    React.SetStateAction<string[] | undefined>
-  >;
-  setSelectedWalletType: React.Dispatch<
-    React.SetStateAction<string | undefined>
-  >;
+  connectedAccount: string;
+  setConnectedAccount: React.Dispatch<React.SetStateAction<string>>;
+  // setSelectedWalletType: React.Dispatch<
+  //   React.SetStateAction<string | undefined>
+  // >;
 }
-const BASE_PATH = `44'/4801368'/0'/0'`;
 
 export const WalletConnectModal: React.FC<WalletConnectModalProps> = ({
   show,
   closeHandler,
   setConnectedAccount,
   connectedAccount,
-  setSelectedWalletType,
 }) => {
   // const [selectedWallet, setSelectedWallet] = useState<string>("");
-  const [isConnected, setIsConnected] = useState(false);
-  const [isConnecting, setIsConnecting] = useState(false);
-  const [webhidTransport, setWebhidTransport] = useState(null);
-  const [icx, setIcx] = useState(null);
-  const [currPage, setCurrPage] = useState(1);
-  const [walletAddresses, setWalletAddresses] = useState([]);
-  const [walletPaths, setWalletPaths] = useState([]);
-  const addressPerPage = 4;
+
   const handleHanaLogin = async () => {
-    setSelectedWalletType("ICON");
     console.log("Connecting to hana button");
     if (connectedAccount) {
       console.log("already connected");
@@ -56,16 +42,8 @@ export const WalletConnectModal: React.FC<WalletConnectModalProps> = ({
     }
   };
 
-  const saveWalletToLocalStorage = (account: string) => {
-    try {
-      localStorage.setItem("connectedWallet", JSON.stringify(account));
-    } catch (error) {
-      console.error("Failed to save wallet to localStorage:", error);
-    }
-  };
-
   useEffect(() => {
-    function handleResponse(event: Event) {
+    function handleResponse(event: CustomEvent) {
       const { type, payload } = event.detail;
 
       if (type === "RESPONSE_ADDRESS") {
@@ -84,81 +62,21 @@ export const WalletConnectModal: React.FC<WalletConnectModalProps> = ({
       closeHandler();
     }
 
-    window.addEventListener("ICONEX_RELAY_RESPONSE", handleResponse); // can use eventhandler
+    const eventListener: EventListener = (event) =>
+      handleResponse(event as CustomEvent);
+
+    window.addEventListener(
+      "ICONEX_RELAY_RESPONSE",
+      eventListener as EventListener
+    ); // can use eventhandler
 
     return () => {
-      window.removeEventListener("ICONEX_RELAY_RESPONSE", handleResponse);
+      window.removeEventListener(
+        "ICONEX_RELAY_RESPONSE",
+        eventListener as EventListener
+      );
     };
-  }, []);
-
-  const loadAddresses = async (suppressError, icx) => {
-    let i = 0;
-    let counter;
-    const addresses = [];
-    const paths = [];
-    while (i < addressPerPage) {
-      suppressError = true;
-      counter = (currPage - 1) * addressPerPage + i;
-      console.log("counter = ", counter);
-      const path = `${BASE_PATH}/${counter}'`;
-      console.log("PATH= ", path);
-      let { address } = await icx.getAddress(path, false, true);
-      address = address.toString();
-      console.log("a wallet ", address);
-      addresses.push(address);
-      paths.push(path);
-      i++;
-    }
-    console.log("ADDRESSES FOR A PAGE: ", addresses);
-    setWalletAddresses(addresses);
-    setWalletPaths(paths);
-  };
-
-  // const handleLedgerLogin = () => {
-  //   console.log("logging to ledger");
-  //   const suppressError = false;
-  //   setIsConnecting(true);
-  //   Transport.create()
-  //     .then(async (transport) => {
-  //       transport.setDebugMode();
-  //       const icx = new AppIcx(transport);
-  //       setIcx(icx);
-  //       console.log("Transportation channel established");
-  //       try {
-  //         setIsConnected(true);
-  //         //test if its working first
-  //         await icx.getAddress(`${BASE_PATH}/0'`, false, true);
-
-  //         //our func here
-  //         await loadAddresses(suppressError, icx);
-
-  //         setIsConnecting(false);
-  //       } catch (error) {
-  //         if (suppressError) {
-  //           console.warn(
-  //             "Failed connecting to Ledger with suppress error",
-  //             error
-  //           );
-  //           // NotificationManager.error(error.message instanceof string , "Connecting to Ledger Failed")
-  //           toast.error("Connecting to Ledger failed");
-  //           // props.onHide();
-  //         } else {
-  //           console.warn("Failed connecting to ledger", error);
-  //           toast.error("Connecting to Ledger Failed", error);
-  //           // NotificationManager.error("Connecting to Ledger Failed")
-  //           // props.onHide();
-  //         }
-  //         setIsConnected(false);
-  //         setIsConnecting(false);
-  //       }
-  //     })
-  //     .catch((error) => {
-  //       toast.error("Transport channel could not be established", error);
-  //       setIsConnecting(false);
-  //       setIsConnected(false);
-  //       // props.onHide();
-  //     });
-  // };
+  }, [connectedAccount, closeHandler, setConnectedAccount]);
 
   useEffect(() => {
     console.log(connectedAccount, "connected acc");
@@ -171,7 +89,7 @@ export const WalletConnectModal: React.FC<WalletConnectModalProps> = ({
         if (savedWallet) {
           const wallet = JSON.parse(savedWallet);
           setConnectedAccount(wallet);
-          ICONEXResponse.setWalletAddress(connectedAccount);
+          ICONEXResponse.setWalletAddress(wallet);
         }
       } catch (error) {
         console.error("Failed to fetch wallet from localStorage:", error);

@@ -4,7 +4,6 @@ import IconService, {
   HttpProvider,
   CallBuilder,
   CallTransactionBuilder,
-  SignedTransaction,
 } from "icon-sdk-js";
 export const { IconConverter } = IconService;
 
@@ -16,12 +15,10 @@ const httpProvider = new HttpProvider(provider);
 const iconService = new IconService(httpProvider);
 
 export const getBalanceInformation = async (walletAddress: string) => {
-  console.log(provider);
   try {
     console.log("callign data from contract");
-    console.log(walletAddress, "wallet addres");
-    const amount = await iconService.getBalance(walletAddress).execute();
-    console.log(amount);
+    console.log(walletAddress);
+
     const txObj = new CallBuilder()
       .to(score)
       .method("getBalanceInfo")
@@ -31,9 +28,27 @@ export const getBalanceInformation = async (walletAddress: string) => {
     const response = await iconService.call(txObj).execute();
     console.log(response, "response from contract");
     return response;
-    console.log("tx obj", txObj);
   } catch (e) {
     console.log("Error in caling contract", e);
+    return e;
+  }
+};
+
+export const getSponsorsList = async (offset: number, limit: number) => {
+  try {
+    const txOBj = new CallBuilder()
+      .to(score)
+      .method("getSponsorsRecord")
+      .params({ offset: offset, limit: limit })
+      .build();
+
+    //now call it
+    const response = await iconService.call(txOBj).execute();
+    console.log(response, "response");
+    return response;
+  } catch (e) {
+    console.log("Error in calling contract", e);
+    return e;
   }
 };
 
@@ -41,9 +56,11 @@ export const claimDividend = async (
   index: number,
   proofHashes: string[],
   tapAmount: number,
-  amount: number
+  amount: number,
+  walletAddress: string
 ) => {
   console.log("Claiming dividends");
+  console.log(tapAmount, IconConverter.toHexNumber(tapAmount));
 
   try {
     // Prepare the transaction object
@@ -52,21 +69,35 @@ export const claimDividend = async (
       .params({
         index: index,
         proofHashes: proofHashes,
-        tapAmount: tapAmount,
-        amount: amount,
+        tapAmount: Number(IconConverter.toHex(tapAmount)),
+        amount: amount, // ???
       })
       .to(score)
+      .nid(2)
+      .from(walletAddress)
+      .version(IconConverter.toBigNumber("3"))
+      .timestamp(new Date().getTime() * 1000)
+
       .build();
 
-    // Prepare the transaction data for relaying
+    //txobj
+    console.log(txObj);
+    // Prepare the transaction data
+    const rawTransaction = IconConverter.toRawTransaction(txObj);
+    console.log("raw tras", rawTransaction);
+
+    //sign it
+    // const signedTransaction = new SignedTransaction(rawTransaction);
     const scoreData: any = {};
+
     scoreData.value = JSON.stringify({
       jsonrpc: "2.0",
       method: "icx_sendTransaction",
-      params: IconConverter.toRawTransaction(txObj),
-      id: 50889,
+      params: rawTransaction,
+      id: 123,
     });
 
+    //Converted to JS Object to dispatch to browser
     const parsed = JSON.parse(scoreData.value);
     console.log("Parsed transaction data:", parsed);
 
@@ -79,6 +110,7 @@ export const claimDividend = async (
         },
       })
     );
+    console.log("Transaction dispatched, awaiting for confirmation");
   } catch (e) {
     console.error("Error in claiming dividends:", e);
     throw e;

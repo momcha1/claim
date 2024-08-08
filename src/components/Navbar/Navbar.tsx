@@ -1,7 +1,8 @@
 import { Link } from "react-router-dom";
 import { useState } from "react";
+import icx from "../../assets/images/ICX.png";
+import { tracker } from "../../constants";
 import iconbetLogo from "../../assets/images/iconbetLogo.png";
-import hana from "../../assets/images/hana.png";
 import { WalletConnectModal } from "../../modals/walletConnect.component";
 
 interface NavbarProps {
@@ -13,13 +14,11 @@ const Navbar: React.FC<NavbarProps> = ({
   connectedAccount,
   setConnectedAccount,
 }) => {
-  // const [isWalletConnected] = useState(false);
-  const [balance, setBalance] = useState("");
   const [openWalletDrop, setOpenWalletDrop] = useState(false);
   const [openWalletModal, setOpenWalletModal] = useState({
     show: false,
   });
-  const [selectedWalletType, setSelectedWalletType] = useState("");
+  // const [selectedWalletType, setSelectedWalletType] = useState("");
   // const [isConnected, setIsConnected] = useState(false);
   // const [isConnecting, setIsConnecting] = useState(false);
   // const [icx, setIcx] = useState(null);
@@ -40,13 +39,13 @@ const Navbar: React.FC<NavbarProps> = ({
       }
     }
     if (type == "LEDGER") {
-      setConnectedAccount(undefined);
+      setConnectedAccount("");
     }
     setOpenWalletDrop(false);
   };
 
   return (
-    <div className="flex flex-row py-8 justify-between items-center mx-32 mb-10 h-32 ">
+    <div className="flex flex-row pt-8 justify-between items-center mx-32 mb-5 h-32 ">
       <div className="">
         <Link to="/">
           <img src={iconbetLogo} className="w-20 h-auto "></img>
@@ -55,16 +54,23 @@ const Navbar: React.FC<NavbarProps> = ({
 
       <div>
         {connectedAccount ? (
-          <div className="flex flex-row text-white gap-5 items-center pl-10">
-            <div className="flex flex-row gap-2 items-center ">
-              <img src={hana} alt="" className="w-4 h-auto" />
+          <div className="flex flex-row text-white gap-5 items-center pl-2">
+            <div className="flex flex-row   items-center ">
               <button
                 className=""
                 type="button"
                 onClick={() => setOpenWalletDrop((prevState) => !prevState)}
               >
-                <p className=" text-white ">{connectedAccount?.toString()}</p>
+                <p className=" text-white w-32 truncate ">
+                  {connectedAccount.slice(0, 6) +
+                    "...." +
+                    connectedAccount.slice(
+                      connectedAccount.length - 4,
+                      connectedAccount.length - 1
+                    )}
+                </p>
               </button>
+              <img src={icx} alt="" className="w-10 h-auto" />
             </div>
           </div>
         ) : (
@@ -81,18 +87,33 @@ const Navbar: React.FC<NavbarProps> = ({
         closeHandler={handleModalClose}
         setConnectedAccount={setConnectedAccount}
         connectedAccount={connectedAccount}
-        setSelectedWalletType={setSelectedWalletType}
+        // setSelectedWalletType={setSelectedWalletType}
       />
 
       {openWalletDrop && (
-        <div className="absolute top-[85px] right-[130px] rounded-lg bg-[#68eddd] w-[130px] h-12 text-center pt-3 hover:text-red-500 text-white  border border-white">
-          <button
-            onClick={() => {
-              handleWalletDisconnect("ICON");
-            }}
-          >
-            Disconnect
-          </button>
+        <div className="absolute top-[95px] right-[130px] rounded-lg bg-[#1eb6bf] w-[160px] h-fit  text-center  text-white p-2 text-sm">
+          <div className="absolute top-[-8px] left-[20px] transform -translate-x-1/2 w-0 h-0 border-x-8 border-x-transparent border-b-8 border-[#1eb6bf]"></div>
+
+          <div className=" border-black rounded p-1 hover:text-black hover:font-bold">
+            <button
+              onClick={() => {
+                handleWalletDisconnect("ICON");
+              }}
+            >
+              Disconnect
+            </button>
+          </div>
+
+          <div className=" border-black rounded p-1 hover:text-black hover:font-bold">
+            <a href={tracker + connectedAccount} target="_blank">
+              View address{" "}
+            </a>
+          </div>
+          <div className=" border-black rounded p-1 hover:text-black hover:font-bold">
+            <button onClick={() => setOpenWalletModal({ show: true })}>
+              Change Wallet
+            </button>
+          </div>
         </div>
       )}
     </div>

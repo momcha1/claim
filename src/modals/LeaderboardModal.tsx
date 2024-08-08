@@ -1,5 +1,6 @@
-import { off } from "process";
 import { useState, useEffect } from "react";
+import { getSponsorsList } from "../services/service";
+import { saveTableToLocalStorage } from "../helpers/localStorage";
 
 interface LeaderBoardModalProps {
   show: boolean;
@@ -16,9 +17,14 @@ const LeaderBoardModal: React.FC<LeaderBoardModalProps> = ({
   closeHandler,
 }) => {
   const limitPerPage: number = 10;
-  const [offset, setOffset] = useState(0);
+  const limit: number = 20;
+  const [pageoffset, setpageoffset] = useState(0);
+  const [localOffset, setlocalOffset] = useState(0);
+  const [offset, setoffset] = useState(0);
   const [leader, setLeader] = useState<LeaderData[]>([]);
-  const currentPage = parseInt(`${offset / limitPerPage}`) + 1;
+  const [twentyData, setTwentyData] = useState<LeaderData>();
+
+  const currentPage = parseInt(`${pageoffset / limitPerPage}`) + 1;
   const newLeader: LeaderData[] = [
     { address: "0x1111111111111111111111111111111111111111", amount: 100 },
     { address: "0x0000000000000000000000000000000000000002", amount: 200 },
@@ -40,50 +46,47 @@ const LeaderBoardModal: React.FC<LeaderBoardModalProps> = ({
     { address: "0x0000000000000000000000000000000000000018", amount: 1800 },
     { address: "0x0000000000000000000000000000000000000019", amount: 1900 },
     { address: "0x0000000000000000000000000000000000000020", amount: 2000 },
-    { address: "0x0000000000000000000000000000000000000021", amount: 2100 },
-    { address: "0x0000000000000000000000000000000000000022", amount: 2200 },
-    { address: "0x0000000000000000000000000000000000000023", amount: 2300 },
-    { address: "0x0000000000000000000000000000000000000024", amount: 2400 },
-    { address: "0x0000000000000000000000000000000000000025", amount: 2500 },
-    { address: "0x0000000000000000000000000000000000000026", amount: 2600 },
-    { address: "0x0000000000000000000000000000000000000027", amount: 2700 },
-    { address: "0x0000000000000000000000000000000000000028", amount: 2800 },
-    { address: "0x0000000000000000000000000000000000000029", amount: 2900 },
-    { address: "0x0000000000000000000000000000000000000030", amount: 3000 },
-    { address: "0x0000000000000000000000000000000000000031", amount: 3100 },
-    { address: "0x0000000000000000000000000000000000000032", amount: 3200 },
-    { address: "0x0000000000000000000000000000000000000033", amount: 3300 },
-    { address: "0x0000000000000000000000000000000000000034", amount: 3400 },
-    { address: "0x0000000000000000000000000000000000000035", amount: 3500 },
-    { address: "0x0000000000000000000000000000000000000036", amount: 3600 },
-    { address: "0x0000000000000000000000000000000000000037", amount: 3700 },
-    { address: "0x0000000000000000000000000000000000000038", amount: 3800 },
-    { address: "0x0000000000000000000000000000000000000039", amount: 3900 },
-    { address: "0x0000000000000000000000000000000000000040", amount: 4000 },
-    { address: "0x0000000000000000000000000000000000000041", amount: 4100 },
-    { address: "0x0000000000000000000000000000000000000042", amount: 4200 },
-    { address: "0x0000000000000000000000000000000000000043", amount: 4300 },
-    { address: "0x0000000000000000000000000000000000000044", amount: 4400 },
-    { address: "0x0000000000000000000000000000000000000045", amount: 4500 },
-    { address: "0x0000000000000000000000000000000000000046", amount: 4600 },
-    { address: "0x0000000000000000000000000000000000000047", amount: 4700 },
-    { address: "0x0000000000000000000000000000000000000048", amount: 4800 },
-    { address: "0x0000000000000000000000000000000000000049", amount: 4900 },
-    { address: "0x0000000000000000000000000000000000000050", amount: 5000 },
   ];
-
-  const handlePagination = (limit: number) => {
-    console.log(offset, limit, currentPage);
-    const temp = offset + limit;
-    if (temp >= 0) {
-      setOffset(temp);
+  const getPortionOfSponsors = async (offset: number) => {
+    try {
+      const list = await getSponsorsList(limit, offset);
+      //save to localstorage
+      saveTableToLocalStorage(list);
+      console.log(list);
+    } catch (e) {
+      console.log(e);
     }
   };
 
+  const handlePagination = (limit: number) => {
+    console.log(pageoffset, limit, currentPage);
+    const temp = pageoffset + limit;
+    if (temp >= 0) {
+      setpageoffset(temp);
+    }
+    if (currentPage % 2 == 0) {
+      setlocalOffset(currentPage / 2);
+    }
+    console.log(localOffset);
+  };
+
+  // to get 20 data to show
+  // useEffect(() => {
+  //   console.log("Current local storage offset", localOffset);
+  //   const localdata: LeaderData = getTableFromLocalStorage(localOffset);
+  //   setTwentyData(localdata);
+  // }, [localOffset]);
+
   useEffect(() => {
-    console.log(offset, "changed offset", limitPerPage);
-    setLeader(newLeader.slice(offset, offset + limitPerPage));
-  }, [offset]);
+    console.log("local offset", localOffset);
+  }, [localOffset]);
+
+  //to show only 10 data per page
+  useEffect(() => {
+    console.log(pageoffset, "changed pageoffset", limitPerPage);
+    setLeader(newLeader.slice(pageoffset, pageoffset + limitPerPage));
+    // setLeader(newLeader);
+  }, [pageoffset]);
 
   if (!show) return null;
 
@@ -112,7 +115,7 @@ const LeaderBoardModal: React.FC<LeaderBoardModalProps> = ({
                     }`}
                     key={key}
                   >
-                    <td className="pl-8 pt-3 ">{offset + key + 1} </td>
+                    <td className="pl-8 pt-3 ">{pageoffset + key + 1} </td>
                     <td className=" h-10 pt-3 w-[500px] pl-8  ">
                       {item.address}
                     </td>
